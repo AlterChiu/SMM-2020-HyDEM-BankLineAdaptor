@@ -13,33 +13,23 @@ import geo.gdal.SpatialReader;
 import geo.gdal.SpatialWriter;
 
 public class SOBEK_CreateSplitLine {
-	// workSpace
-	public static String workSpace = "E:\\LittleProject\\報告書\\109 - SMM\\測試\\溢堤線更新\\";
-	public static String sobekObjectWorkSpace = workSpace + "SOBEK物件\\shp-file\\";
-	public static String hydemObjectWorkSpace = workSpace + "溢堤線\\第一期\\";
-	public static String testingWorkSpace = workSpace + "testing\\";
-
-	// creating fileName
-	public static String pairseBankLine_Error = "SOBEK_BankLinepairesError.shp";
-	public static String pairseBankLine = "SOBEK_BankLinepaires.shp";
-	public static String pariseBankPointsError = "SOBEK_BankPointspairesError.shp";
-	public static String pariseBankPoints = "SOBEK_BankPointspaires.shp";
-	public static String reachNodesShp = "SOBEK_ReachNode.shp";
-	public static String splitLinePairseBankPoints = "SOBEK_BankPointsLine.shp";
-
-	public static String splitHydemPolygons = "HyDEM_SplitPolygons.shp";
-	public static String splitHydemLines = "HyDEM_SplitLine.shp";
-	public static String mergedHydemPolygons = "HyDEM_MergedBankLine.shp";
-	public static String centerLineHydemPolygons = "HyDEM_CenterLine.shp";
-	public static String bankLineHydem = "HyDEM_BankLine.shp";
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
+		// @ input
+		// -SOBEK_BankPoints (String, spatailFile path)
+		// -Buffer (Integer , 0 - 100)
+
+		// @Output
+		// -SOBEK_SplitLine (String , spatialFile path)
+
+		Map<String, String> parameter = WorkSpace.settingVariables(args);
+
 		// setting Variables
-		String testingWorkSpace = SOBEK_CreateSplitLine.testingWorkSpace;
-		String pariseBankPointsAdd = SOBEK_CreateSplitLine.pariseBankPoints;
-		String splitLinePairseBankPointsAdd = SOBEK_CreateSplitLine.splitLinePairseBankPoints;
+		String pariseBankPointsAdd = parameter.get("-SOBEK_BankPoints");
+		String splitLinePairseBankPointsAdd = parameter.get("-SOBEK_SplitLine");
+		int buffer = Integer.parseInt(parameter.get("-Buffer"));
 
 		// TODO Auto-generated method stub
 		// <================================================>
@@ -58,7 +48,7 @@ public class SOBEK_CreateSplitLine {
 		 */
 
 		// read pairs point properties
-		SpatialReader pairsBankPointsShp = new SpatialReader(testingWorkSpace + pariseBankPointsAdd);
+		SpatialReader pairsBankPointsShp = new SpatialReader(pariseBankPointsAdd);
 		List<Map<String, Object>> pointsAttr = pairsBankPointsShp.getAttributeTable();
 		Map<String, List<Geometry>> geoMap = pairsBankPointsShp.getGeoListMap("ID");
 
@@ -78,10 +68,10 @@ public class SOBEK_CreateSplitLine {
 				double linkedX = linkedGeometry.GetX();
 				double linkedY = linkedGeometry.GetY();
 
-				double outX1 = currentX + 0.5 * (currentX - linkedX) / 2;
-				double outY1 = currentY + 0.5 * (currentY - linkedY) / 2;
-				double outX2 = linkedX + 0.5 * (linkedX - currentX) / 2;
-				double outY2 = linkedY + 0.5 * (linkedY - currentY) / 2;
+				double outX1 = currentX + (0.01 * buffer) * (currentX - linkedX) / 2;
+				double outY1 = currentY + (0.01 * buffer) * (currentY - linkedY) / 2;
+				double outX2 = linkedX + (0.01 * buffer) * (linkedX - currentX) / 2;
+				double outY2 = linkedY + (0.01 * buffer) * (linkedY - currentY) / 2;
 
 				outList.add(GdalGlobal.CreateLine(outX1, outY1, outX2, outY2));
 			}
@@ -90,7 +80,7 @@ public class SOBEK_CreateSplitLine {
 			usedID.add(linkedID);
 		}
 
-		new SpatialWriter().setGeoList(outList).saveAsShp(testingWorkSpace + splitLinePairseBankPointsAdd);
+		new SpatialWriter().setGeoList(outList).saveAsShp(splitLinePairseBankPointsAdd);
 		System.out.println("create split line complete, " + splitLinePairseBankPointsAdd);
 
 	}

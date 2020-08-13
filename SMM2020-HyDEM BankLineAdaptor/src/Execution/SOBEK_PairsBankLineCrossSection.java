@@ -19,29 +19,25 @@ import usualTool.AtCommonMath;
 
 public class SOBEK_PairsBankLineCrossSection {
 
-	// workSpace
-	public static String workSpace = "E:\\LittleProject\\報告書\\109 - SMM\\測試\\溢堤線更新\\";
-	public static String sobekObjectWorkSpace = workSpace + "SOBEK物件\\shp-file\\";
-	public static String hydemObjectWorkSpace = workSpace + "溢堤線\\第一期\\";
-	public static String testingWorkSpace = workSpace + "testing\\";
-
-	// creating fileName
-	public static String pairseBankLine_Error = "SOBEK_BankLinepairesError.shp";
-	public static String pairseBankLine = "SOBEK_BankLinepaires.shp";
-	public static String pariseBankPointsError = "SOBEK_BankPointspairesError.shp";
-	public static String pariseBankPoints = "SOBEK_BankPointspaires.shp";
-	public static String reachNodesShp = "SOBEK_ReachNode.shp";
-	public static String splitLinePairseBankPoints = "SOBEK_BankPointsLine.shp";
-
 	public static void main(String[] args) {
 
+		// @ input
+		// -SOBEK_SpatialFolder (String, folder path)
+		// -SOBEK_BankLine (String , spatialFile path)
+
+		// @Output
+		// -SOBEK_CrossSectionPoints (String, spatialFile path)
+		// -SOBEK_CrossSectionPointsError (String, spatialFile path)
+		// -SOBEK_ReachNode (String, spatialFile path)
+
+		Map<String, String> parameter = WorkSpace.settingVariables(args);
+
 		// setting Variables
-		String sobekObjectWorkSpace = SOBEK_PairsBankLineCrossSection.sobekObjectWorkSpace;
-		String testingWorkSpace = SOBEK_PairsBankLineCrossSection.testingWorkSpace;
-		String pairseBankLine = SOBEK_PairsBankLineCrossSection.pairseBankLine;
-		String pariseBankPointsError = SOBEK_PairsBankLineCrossSection.pariseBankPointsError;
-		String pariseBankPoints = SOBEK_PairsBankLineCrossSection.pariseBankPoints;
-		String reachNodesShp = SOBEK_PairsBankLineCrossSection.reachNodesShp;
+		String sobekObjectWorkSpace = parameter.get("-SOBEK_SpatialFolder");
+		String pairseBankLine = parameter.get("-SOBEK_BankLine");
+		String pariseBankPointsError = parameter.get("-SOBEK_CrossSectionPointsError");
+		String pariseBankPoints = parameter.get("-SOBEK_CrossSectionPoints");
+		String reachNodesShp = parameter.get("-SOBEK_ReachNode");
 
 		// <================================================>
 		// <======== pairs bankPoints ===========================>
@@ -67,7 +63,7 @@ public class SOBEK_PairsBankLineCrossSection {
 
 		// TODO Auto-generated method stub
 		// get bank line
-		String pariseBaneLine = testingWorkSpace + pairseBankLine;
+		String pariseBaneLine = pairseBankLine;
 		SpatialReader bankShp = new SpatialReader(pariseBaneLine);
 		List<Geometry> bankGeoList = bankShp.getGeometryList();
 		List<Map<String, Object>> bankAttrList = bankShp.getAttributeTable();
@@ -181,14 +177,14 @@ public class SOBEK_PairsBankLineCrossSection {
 			// throw error message
 			System.out
 					.println("bankPoint pairs error, bankPoint amount not match, create file " + pariseBankPointsError);
-			new SpatialWriter().setGeoList(errorBnakPoints).saveAsShp(testingWorkSpace + pariseBankPointsError);
+			new SpatialWriter().setGeoList(errorBnakPoints).saveAsShp(pariseBankPointsError);
 			System.out.println("please checkout files, Sbk_LConn_n.shp and Sbk_C&LR_n.shp");
 
 		} else {
 			System.out.println("bankPoint pairs complete, create file " + pariseBankPoints);
 
 			// create bankPoints
-			bankPointsPairs.saveAsShp(testingWorkSpace + pariseBankPoints);
+			bankPointsPairs.saveAsShp(pariseBankPoints);
 
 			// create reachPoint
 			List<Geometry> reachPoints = new ArrayList<>();
@@ -196,7 +192,7 @@ public class SOBEK_PairsBankLineCrossSection {
 				if (!bankPointRecord.contains(crossSectionKey))
 					reachPoints.add(crossSectionGeoMap.get(crossSectionKey));
 			});
-			new SpatialWriter().setGeoList(reachPoints).saveAsShp(testingWorkSpace + reachNodesShp);
+			new SpatialWriter().setGeoList(reachPoints).saveAsShp(reachNodesShp);
 		}
 	}
 

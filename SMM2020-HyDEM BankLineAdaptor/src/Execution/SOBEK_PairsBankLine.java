@@ -13,34 +13,22 @@ import testFolder.SOBEK_OBJECT.SobekBankLine;
 
 public class SOBEK_PairsBankLine {
 
-	// workSpace
-	public static String workSpace = "E:\\LittleProject\\報告書\\109 - SMM\\測試\\溢堤線更新\\";
-	public static String sobekObjectWorkSpace = workSpace + "SOBEK物件\\shp-file\\";
-	public static String hydemObjectWorkSpace = workSpace + "溢堤線\\第一期\\";
-	public static String testingWorkSpace = workSpace + "testing\\";
-
-	// creating fileName
-	public static String pairseBankLine_Error = "SOBEK_BankLinepairesError.shp";
-	public static String pairseBankLine = "SOBEK_BankLinepaires.shp";
-	public static String pariseBankPointsError = "SOBEK_BankPointspairesError.shp";
-	public static String pariseBankPoints = "SOBEK_BankPointspaires.shp";
-	public static String reachNodesShp = "SOBEK_ReachNode.shp";
-	public static String splitLinePairseBankPoints = "SOBEK_BankPointsLine.shp";
-
-	public static String splitHydemPolygons = "HyDEM_SplitPolygons.shp";
-	public static String splitHydemLines = "HyDEM_SplitLine.shp";
-	public static String mergedHydemPolygons = "HyDEM_MergedBankLine.shp";
-	public static String centerLineHydemPolygons = "HyDEM_CenterLine.shp";
-	public static String bankLineHydem = "HyDEM_BankLine.shp";
-
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
+		// @ input
+		// -SOBEK_SpatialFolder (String, folder path)
+
+		// @Output
+		// -SOBEK_BankLine (String , spatialFile path)
+		// -SOBEK_BankLineError(String, spatialFile path)
+
+		Map<String, String> parameter = WorkSpace.settingVariables(args);
+
 		// setting Variables
-		String sobekObjectWorkSpace = SOBEK_PairsBankLine.sobekObjectWorkSpace;
-		String testingWorkSpace = SOBEK_PairsBankLine.testingWorkSpace;
-		String pairseBankLine_Error = SOBEK_PairsBankLine.pairseBankLine_Error;
-		String pairseBankLine = SOBEK_PairsBankLine.pairseBankLine;
+		String sobekObjectWorkSpace = parameter.get("-SOBEK_SpatialFolder");
+		String pairseBankLine_Error = parameter.get("-SOBEK_BankLineError");
+		String pairseBankLine = parameter.get("-SOBEK_BankLine");
 
 		// <================================================>
 		// <======== pairs bank line =============================>
@@ -90,7 +78,7 @@ public class SOBEK_PairsBankLine {
 			}
 		}
 		if (errorGeoList.size() > 0) {
-			new SpatialWriter().setGeoList(errorGeoList).saveAsShp(testingWorkSpace + pairseBankLine_Error);
+			new SpatialWriter().setGeoList(errorGeoList).saveAsShp(pairseBankLine_Error);
 			System.out.println("bankLine paireError, create file " + pairseBankLine_Error);
 			System.out.println("Please check SOBEK objedt file, Sbk_Pipe_l.shp");
 
@@ -110,7 +98,7 @@ public class SOBEK_PairsBankLine {
 				attrTable.put("Direction", unPariesBankLine.get(index).getLinkedDirection());
 				sobekBankLine.addFeature(unPariesBankLine.get(index).getGeo(), attrTable);
 			}
-			sobekBankLine.saveAsShp(testingWorkSpace + pairseBankLine);
+			sobekBankLine.saveAsShp(pairseBankLine);
 		}
 
 	}

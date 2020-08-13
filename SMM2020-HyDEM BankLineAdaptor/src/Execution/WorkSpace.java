@@ -1,13 +1,26 @@
 package Execution;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class WorkSpace {
-
-	// <WORK FLOW>
+	// <WORK FLOW-SOBEK>
 	// <------------------------------------------------------------------------>
 	/*
-	 * 製作完成HyDEM SplitLine(userDefineSplitLine)後 依序執行以下processing
+	 * 將建置用用SOBEK專案之SpatialFile吐出到指定資料夾後開始以下流程
+	 * 
+	 * 1. PairsBankLine : 配對SOBEK專案中的溢堤線，若有特殊狀況會產製Exception檔案
+	 * 
+	 * 2. PairsBankLineCrossSection : 依照溢堤線配對斷面樁，若有特殊狀況會產製Exception檔案
+	 * 
+	 * 3. CreateSplitLine : 依照斷面樁產製斷面線，可以設定buffer百分比做調整
+	 * 
+	 */
+
+	// <WORK FLOW-HyDEM>
+	// <------------------------------------------------------------------------>
+	/*
+	 * 製作完成userDefine_SplitLine後 依序執行以下processing
 	 * 
 	 * 1. SplitPolygonBySplitLine : 將Polygon切分為多段狀
 	 * 
@@ -16,25 +29,9 @@ public class WorkSpace {
 	 * 3. CheckLevelContinue : 確認各BankLine的高程連續性
 	 * 
 	 * 4. CreateCenterLine : 建立中心線
+	 * 
+	 * 5. FixCenterLine : 修除不合理中心線
 	 */
-
-	// workSpace
-	public static String workSpace = "E:\\LittleProject\\報告書\\109 - SMM\\測試\\溢堤線更新\\將軍溪\\";
-	public static String hydemObjectWorkSpace = workSpace + "溢堤線\\";
-	public static String testingWorkSpace = workSpace + "";
-
-	// creating fileName
-	public static String splitHydemPolygons = "HyDEM_SplitPolygons.shp"; // HyDEM polygons, which split by splitLine
-	public static String splitHydemLines = "HyDEM_SplitLine.shp"; // splitLine, which split polygons from HyDEM
-																	// mergedBankLine to
-	public static String mergedHydemPolygons = "HyDEM_MergedBankLine.shp";
-	public static String bankLineHydem = "HyDEM_BankLine.shp";
-	public static String userDefineSplitLine = "userDefine_SplitLine.shp";
-	public static String bankLineHydem_Leveling = "HyDEM_BankLineLeveling.csv";
-	public static String bankLineHydem_Vertice = "HyDEM_BankLineVertice.shp";
-
-	public static String centerLineHydemPolygons = "HyDEM_CenterLine.shp";
-	public static String centerLineFixed = "HyDEM_CenterLine_Fix.shp";
 
 	public static Map<String, String> settingVariables(String[] args) {
 		Map<String, String> outputMap = new HashMap<>();
