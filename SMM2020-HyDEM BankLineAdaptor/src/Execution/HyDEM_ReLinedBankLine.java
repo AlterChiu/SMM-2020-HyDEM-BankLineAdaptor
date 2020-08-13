@@ -1,6 +1,5 @@
 package Execution;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,7 +12,6 @@ import java.util.Set;
 
 import org.gdal.ogr.Geometry;
 
-import geo.common.Task.HyDEM.BankLine.WorkSpace;
 import geo.gdal.GdalGlobal;
 import geo.gdal.IrregularNetBasicControl;
 import geo.gdal.IrregularReachBasicControl;
@@ -28,11 +26,17 @@ public class HyDEM_ReLinedBankLine {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
-		String testingWorkSpace = WorkSpace.testingWorkSpace;
-		String splitHydemPolygons = WorkSpace.splitHydemPolygons;
-		String bankLineHydem = WorkSpace.bankLineHydem;
-		
+		// @ input
+		// -HyDEM_SplitBankLinePolygon(String , spatailFile path)
+
+		// @Output
+		// -HyDEM_BankLine (String , spatailFile path)
+
+		Map<String, String> parameter = WorkSpace.settingVariables(args);
+
+		String splitHydemPolygons = parameter.get("-HyDEM_SplitBankLinePolygon");
+		String bankLineHydem = parameter.get("-HyDEM_BankLine");
+
 		// <================================================>
 		// <====== ReCraete pairs bankLine from splitHyDEM polygon ========>
 		// <================================================>
@@ -45,7 +49,7 @@ public class HyDEM_ReLinedBankLine {
 		 */
 
 		IrregularNetBasicControl splitBanKLinePolygons = new IrregularNetBasicControl(
-				new SpatialReader(testingWorkSpace + splitHydemPolygons));
+				new SpatialReader(splitHydemPolygons));
 		List<Geometry> outGeo = new ArrayList<>();
 
 		// only store the key of end face, which used
@@ -217,9 +221,7 @@ public class HyDEM_ReLinedBankLine {
 			} catch (Exception e) {
 			}
 		}
-		
-		
-		
+
 		// output shp
 		SpatialWriter hyDEMBankLine = new SpatialWriter();
 		hyDEMBankLine.addFieldType("ID", "Integer");
@@ -233,7 +235,7 @@ public class HyDEM_ReLinedBankLine {
 			attrTable.put("Direction", bankLines.get(index).getLinkedDirection());
 			hyDEMBankLine.addFeature(bankLines.get(index).getGeo(), attrTable);
 		}
-		hyDEMBankLine.saveAsShp(testingWorkSpace + bankLineHydem);
+		hyDEMBankLine.saveAsShp(bankLineHydem);
 
 		System.out.println("create HyDEM bankLine, HyDEM_BankLine.shp");
 	}
@@ -443,7 +445,7 @@ public class HyDEM_ReLinedBankLine {
 		}
 
 		// outGeo
-		Geometry mergedPolygon =  GdalGlobal.mergePolygons(outGeo);
+		Geometry mergedPolygon = GdalGlobal.mergePolygons(outGeo);
 		return mergedPolygon;
 	}
 

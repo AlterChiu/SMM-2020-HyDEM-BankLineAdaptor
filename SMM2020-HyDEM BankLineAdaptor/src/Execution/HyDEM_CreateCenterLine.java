@@ -11,12 +11,12 @@ import java.util.Set;
 
 import org.gdal.ogr.Geometry;
 
-import geo.common.Task.HyDEM.BankLine.WorkSpace;
 import geo.gdal.GdalGlobal;
 import geo.gdal.SpatialReader;
 import geo.gdal.SpatialWriter;
 import geo.gdal.vector.GDAL_VECTOR_CenterLine;
 import geo.gdal.vector.GDAL_VECTOR_Defensify;
+import usualTool.FileFunction;
 
 public class HyDEM_CreateCenterLine {
 	public static int boundaryBufferPersentage = 10; // 10%
@@ -24,14 +24,33 @@ public class HyDEM_CreateCenterLine {
 
 	public static void main(String[] args) throws Exception {
 
-		String testingWorkSpace = WorkSpace.testingWorkSpace;
-		String bankLineHydem = WorkSpace.bankLineHydem;
-		String centerLineHydemPolygons = WorkSpace.centerLineHydemPolygons;
-		HyDEM_CreateCenterLine.boundaryBufferPersentage = 10;
-		HyDEM_CreateCenterLine.centerLineVerticeInterval = 5.0;
+		// get variables
+
+		// @ setting
+		// -QgisRoot (String, folder path)
+
+		// @ input
+		// -HyDEM_BankLine (String , spatailFile path)
+		// -Buffer (Integer, 0-100)
+		// -VerticeInterval(double , >0)
+
+		// @Output
+		// -HyDEM_CenterLine (String , spatailFile path)
+
+		Map<String, String> parameter = WorkSpace.settingVariables(args);
+
+		String bankLineHydem = parameter.get("-HyDEM_BankLine");
+		String centerLineHydemPolygons = parameter.get("-HyDEM_CenterLine");
+		String qgisRoot = parameter.get("-QgisRoot");
+		HyDEM_CreateCenterLine.boundaryBufferPersentage = Integer.parseInt(parameter.get("-Buffer"));
+		HyDEM_CreateCenterLine.centerLineVerticeInterval = Double.parseDouble(parameter.get("-VerticeInterval"));
+
+		// setting qgisRoot
+		GdalGlobal.qgisBinFolder = qgisRoot;
+		FileFunction.newFolder(GdalGlobal.temptFolder);
 
 		// read file
-		String hydemBankLineFileAdd = testingWorkSpace + bankLineHydem;
+		String hydemBankLineFileAdd = bankLineHydem;
 		SpatialReader hydemBankLine = new SpatialReader(hydemBankLineFileAdd);
 		Map<String, List<Geometry>> bankLineGeoList = hydemBankLine.getGeoListMap("ID");
 		List<Map<String, Object>> bankLineAttr = hydemBankLine.getAttributeTable();
@@ -107,7 +126,7 @@ public class HyDEM_CreateCenterLine {
 		}
 
 		// output shpFile
-		centerLineShp.saveAsShp(testingWorkSpace + centerLineHydemPolygons);
+		centerLineShp.saveAsShp(centerLineHydemPolygons);
 		System.out.println("create centerLine complete, " + centerLineHydemPolygons);
 	}
 

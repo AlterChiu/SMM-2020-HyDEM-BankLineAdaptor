@@ -10,7 +10,6 @@ import java.util.TreeMap;
 
 import org.gdal.ogr.Geometry;
 
-import geo.common.Task.HyDEM.BankLine.WorkSpace;
 import geo.gdal.GdalGlobal;
 import geo.gdal.SpatialReader;
 import geo.gdal.SpatialWriter;
@@ -22,18 +21,26 @@ public class HyDEM_CheckLevelContinue {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 
-		String testingWorkSpace = WorkSpace.testingWorkSpace;
-		String bankLineHydem = WorkSpace.bankLineHydem;
-		String bankLineHydem_Leveling = WorkSpace.bankLineHydem_Leveling;
-		String bankLineHydem_Vertice = WorkSpace.bankLineHydem_Vertice;
+		// get variables
+		// @ input
+		// -HyDEM_BankLine (String , spatailFile path)
+
+		// @Output
+		// -HyDEM_BankLineLeveling (String , csvFile path)
+		// -HyDEM_BankLineVertice (String , spatailFile path)
+		Map<String, String> parameter = WorkSpace.settingVariables(args);
+
+		String bankLineHydem = parameter.get("-HyDEM_BankLine");
+		String bankLineHydem_Leveling = parameter.get("-HyDEM_BankLineLeveling");
+		String bankLineHydem_Vertice = parameter.get("-HyDEM_BankLineVertice");
 
 		// <================================================>
 		// <====== Check Leveling Continue of HyDEM BankLine ============>
 		// <================================================>
 
-		String bankLineShpAdd = testingWorkSpace + bankLineHydem;
+		String bankLineShpAdd = bankLineHydem;
 
-		String bankLineVerticeAdd = testingWorkSpace + bankLineHydem_Vertice;
+		String bankLineVerticeAdd = bankLineHydem_Vertice;
 		SpatialWriter bankLineVerticeShp = new SpatialWriter();
 		bankLineVerticeShp.addFieldType("ID", "String");
 		bankLineVerticeShp.addFieldType("X", "double");
@@ -181,8 +188,7 @@ public class HyDEM_CheckLevelContinue {
 			outContent.add(outputValues.parallelStream().toArray(String[]::new));
 		}
 
-		new AtFileWriter(outContent.parallelStream().toArray(String[][]::new),
-				testingWorkSpace + bankLineHydem_Leveling).tabWriter();
+		new AtFileWriter(outContent.parallelStream().toArray(String[][]::new), bankLineHydem_Leveling).tabWriter();
 
 		bankLineVerticeShp.saveAsShp(bankLineVerticeAdd);
 	}

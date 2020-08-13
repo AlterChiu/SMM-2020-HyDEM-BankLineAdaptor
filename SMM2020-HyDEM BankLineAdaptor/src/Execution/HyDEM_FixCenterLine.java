@@ -1,12 +1,10 @@
 package Execution;
 
-
 import java.util.List;
 import java.util.Map;
 
 import org.gdal.ogr.Geometry;
 
-import geo.common.Task.HyDEM.BankLine.WorkSpace;
 import geo.gdal.IrregularReachBasicControl;
 import geo.gdal.SpatialReader;
 import geo.gdal.SpatialWriter;
@@ -15,9 +13,17 @@ public class HyDEM_FixCenterLine {
 
 	public static void main(String[] args) throws Exception {
 
-		String testingWorkSpace = WorkSpace.testingWorkSpace;
-		String centerLineHydemPolygons = WorkSpace.centerLineHydemPolygons;
-		String centerLineFixed = WorkSpace.centerLineFixed;
+		// get variables
+
+		// @ input
+		// -HyDEM_CenterLine (String , spatailFile path)
+
+		// @Output
+		// -HyDEM_CenterLine_Fix (String , spatailFile path)
+
+		Map<String, String> parameter = WorkSpace.settingVariables(args);
+		String centerLineHydemPolygons = parameter.get("-HyDEM_CenterLine");
+		String centerLineFixed = parameter.get("-HyDEM_CenterLine_Fix");
 
 		/*
 		 * the main purpose of this function is to find out the longest length of
@@ -26,7 +32,7 @@ public class HyDEM_FixCenterLine {
 		 */
 
 		// get the centerLine shpFile
-		SpatialReader shpReader = new SpatialReader(testingWorkSpace + centerLineHydemPolygons);
+		SpatialReader shpReader = new SpatialReader(centerLineHydemPolygons);
 		List<Map<String, Object>> centerLineAttrList = shpReader.getAttributeTable();
 		List<Geometry> centerLineGeoList = shpReader.getGeometryList();
 
@@ -41,7 +47,7 @@ public class HyDEM_FixCenterLine {
 		}
 
 		// output shpFile
-		shpWriter.saveAsShp(testingWorkSpace + centerLineFixed);
+		shpWriter.saveAsShp(centerLineFixed);
 		System.out.println("create centerLine-Fix complete, " + centerLineFixed);
 	}
 

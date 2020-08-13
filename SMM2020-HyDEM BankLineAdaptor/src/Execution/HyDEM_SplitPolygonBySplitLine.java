@@ -3,10 +3,10 @@ package Execution;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.gdal.ogr.Geometry;
 
-import geo.common.Task.HyDEM.BankLine.WorkSpace;
 import geo.gdal.GdalGlobal;
 import geo.gdal.SpatialReader;
 import geo.gdal.SpatialWriter;
@@ -17,12 +17,22 @@ public class HyDEM_SplitPolygonBySplitLine {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		String testingWorkSpace = WorkSpace.testingWorkSpace;
-		String hydemObjectWorkSpace = WorkSpace.hydemObjectWorkSpace;
-		String mergedHydemPolygons = WorkSpace.mergedHydemPolygons;
-		String userDefinSplitLine = WorkSpace.userDefineSplitLine;
-		String splitHydemLines = WorkSpace.splitHydemLines;
-		String splitHydemPolygons = WorkSpace.splitHydemPolygons;
+		// @ input
+		// -HyDEM_BankLineFolder (String, folder path)
+		// -UserDefine_SplitLine (String , spatailFile path)
+
+		// @Output
+		// -HyDEM_SplitBankLinePolygon (String , spatialFile path)
+		// -HyDEM_MergedBankLinePolygon(String, spatialFile path)
+		// -HyDEM_SplitLine (String, spatialFile path)
+
+		Map<String, String> parameter = WorkSpace.settingVariables(args);
+
+		String hydemObjectWorkSpace = parameter.get("-HyDEM_BankLineFolder");
+		String mergedHydemPolygons = parameter.get("-HyDEM_MergedBankLinePolygon");
+		String userDefinSplitLine = parameter.get("-UserDefine_SplitLine");
+		String splitHydemLines = parameter.get("-HyDEM_SplitLine");
+		String splitHydemPolygons = parameter.get("-HyDEM_SplitBankLinePolygon");
 
 		// <================================================>
 		// <======== Split HyDEM polygon by SplitLine==================>
@@ -45,8 +55,7 @@ public class HyDEM_SplitPolygonBySplitLine {
 		}
 
 		Geometry mergedBankLine = GdalGlobal.mergePolygons(geoList);
-		new SpatialWriter().setGeoList(GdalGlobal.MultiPolyToSingle(mergedBankLine))
-				.saveAsShp(testingWorkSpace + mergedHydemPolygons);
+		new SpatialWriter().setGeoList(GdalGlobal.MultiPolyToSingle(mergedBankLine)).saveAsShp(mergedHydemPolygons);
 		geoList.clear();
 
 		// get boundary of mergedBankLine
@@ -55,7 +64,7 @@ public class HyDEM_SplitPolygonBySplitLine {
 		// get split line from splitLinePairseBankPoints
 		// ignore which intersection nodes under than 1
 		List<Geometry> splitLineHyDEM = new ArrayList<>();
-		List<Geometry> splitLines = new SpatialReader(testingWorkSpace + userDefinSplitLine).getGeometryList();
+		List<Geometry> splitLines = new SpatialReader(userDefinSplitLine).getGeometryList();
 		int completedPersantage = 0;
 		for (int splitLineIndex = 0; splitLineIndex < splitLines.size(); splitLineIndex++) {
 			double currentPersantage = (int) ((splitLineIndex + 0.) * 100 / splitLines.size());
@@ -81,7 +90,7 @@ public class HyDEM_SplitPolygonBySplitLine {
 		System.out.println("");
 
 		// output splitLine in bankLine polygon
-		new SpatialWriter().setGeoList(splitLineHyDEM).saveAsShp(testingWorkSpace + splitHydemLines);
+		new SpatialWriter().setGeoList(splitLineHyDEM).saveAsShp(splitHydemLines);
 		splitLines.clear();
 
 		// buffer splitLine
@@ -92,7 +101,7 @@ public class HyDEM_SplitPolygonBySplitLine {
 		new SpatialWriter()
 				.setGeoList(GdalGlobal
 						.MultiPolyToSingle(mergedBankLine.Difference(GdalGlobal.mergePolygons(dissoveSplitLine))))
-				.saveAsShp(testingWorkSpace + splitHydemPolygons);
+				.saveAsShp(splitHydemPolygons);
 		System.out.println("create split polygon complete, " + splitHydemPolygons);
 	}
 
