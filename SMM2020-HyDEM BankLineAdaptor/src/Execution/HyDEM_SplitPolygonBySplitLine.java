@@ -1,6 +1,7 @@
 package Execution;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ import geo.gdal.SpatialWriter;
 public class HyDEM_SplitPolygonBySplitLine {
 	public static int dataDecimal = 4;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws UnsupportedEncodingException {
 		// TODO Auto-generated method stub
 
 		// @ input
@@ -26,7 +27,8 @@ public class HyDEM_SplitPolygonBySplitLine {
 		// -HyDEM_MergedBankLinePolygon(String, spatialFile path)
 		// -HyDEM_SplitLine (String, spatialFile path)
 
-		Map<String, String> parameter = WorkSpace.settingVariables(args);
+//		Map<String, String> parameter = WorkSpace.settingVariables(args);
+		Map<String, String> parameter = WorkSpace.settingVariables();
 
 		String hydemObjectWorkSpace = parameter.get("-HyDEM_BankLineFolder");
 		String mergedHydemPolygons = parameter.get("-HyDEM_MergedBankLinePolygon");
@@ -54,7 +56,7 @@ public class HyDEM_SplitPolygonBySplitLine {
 			}
 		}
 
-		Geometry mergedBankLine = GdalGlobal.mergePolygons(geoList);
+		Geometry mergedBankLine = GdalGlobal.GeometriesMerge(geoList , false);
 		new SpatialWriter().setGeoList(GdalGlobal.MultiPolyToSingle(mergedBankLine)).saveAsShp(mergedHydemPolygons);
 		geoList.clear();
 
@@ -81,8 +83,8 @@ public class HyDEM_SplitPolygonBySplitLine {
 				if (intersection.GetGeometryCount() == 2) {
 					Geometry point1 = intersection.GetGeometryRef(0);
 					Geometry point2 = intersection.GetGeometryRef(1);
-					splitLineHyDEM
-							.add(GdalGlobal.CreateLine(point1.GetX(), point1.GetY(), point2.GetX(), point2.GetY()));
+					splitLineHyDEM.add(
+							GdalGlobal.CreateLineString(point1.GetX(), point1.GetY(), point2.GetX(), point2.GetY()));
 				}
 			} catch (Exception e) {
 			}
@@ -100,7 +102,7 @@ public class HyDEM_SplitPolygonBySplitLine {
 		// split mergedBankLine by dissoveSplitLine
 		new SpatialWriter()
 				.setGeoList(GdalGlobal
-						.MultiPolyToSingle(mergedBankLine.Difference(GdalGlobal.mergePolygons(dissoveSplitLine))))
+						.MultiPolyToSingle(mergedBankLine.Difference(GdalGlobal.GeometriesMerge(dissoveSplitLine))))
 				.saveAsShp(splitHydemPolygons);
 		System.out.println("create split polygon complete, " + splitHydemPolygons);
 	}

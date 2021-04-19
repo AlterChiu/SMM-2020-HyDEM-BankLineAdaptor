@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.gdal.ogr.Geometry;
 
-import geo.gdal.IrregularReachBasicControl;
 import geo.gdal.SpatialReader;
 import geo.gdal.SpatialWriter;
+import geo.gdal.application.IrregularReachBasicControl;
 
 public class HyDEM_FixCenterLine {
 

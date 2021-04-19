@@ -3,6 +3,11 @@ package Execution;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.gdal.gdal.gdal;
+import org.gdal.ogr.DataSource;
+import org.gdal.ogr.FeatureDefn;
+import org.gdal.ogr.ogr;
+
 public class WorkSpace {
 	// <WORK FLOW-SOBEK>
 	// <------------------------------------------------------------------------>
@@ -43,6 +48,27 @@ public class WorkSpace {
 			outputMap.put(args[index], args[index + 1]);
 		}
 
+		return outputMap;
+	}
+
+	public static Map<String, String> settingVariables() {
+		Map<String, String> outputMap = new HashMap<>();
+		System.out.println("Input Variables");
+		System.out.println("==============================");
+
+		String root = "E:\\LittleProject\\報告書\\109 - SMM\\測試\\溢堤線更新\\港尾溝溪-2021SMM測試\\";
+
+		// SplitPolygonBySplitLine
+		outputMap.put("-HyDEM_BankLineFolder", root + "溢堤線\\");
+		outputMap.put("-HyDEM_MergedBankLinePolygon", root + "HyDEM_MergedBankLine.shp");
+		outputMap.put("-UserDefine_SplitLine", root + "userDefine_SplitLine.shp");
+		outputMap.put("-HyDEM_SplitLine", root + "HyDEM_SplitLine_Varified.shp");
+		outputMap.put("-HyDEM_SplitBankLinePolygon", root + "HyDEM_SplitedBankLinde.shp");
+		
+		//ReLinedBankLine
+		outputMap.put("-HyDEM_SplitBankLinePolygon", root + "HyDEM_SplitedBankLinde.shp");
+		outputMap.put("-HyDEM_BankLine", root + "HyDEM_BankLine.shp");
+		
 		return outputMap;
 	}
 

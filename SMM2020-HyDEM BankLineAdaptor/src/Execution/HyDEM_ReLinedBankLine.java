@@ -1,5 +1,6 @@
 package Execution;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,18 +14,18 @@ import java.util.Set;
 import org.gdal.ogr.Geometry;
 
 import geo.gdal.GdalGlobal;
-import geo.gdal.IrregularNetBasicControl;
-import geo.gdal.IrregularReachBasicControl;
 import geo.gdal.SpatialReader;
 import geo.gdal.SpatialWriter;
-import geo.gdal.IrregularNetBasicControl.EdgeClass;
-import geo.gdal.IrregularNetBasicControl.FaceClass;
+import geo.gdal.application.IrregularNetBasicControl;
+import geo.gdal.application.IrregularNetBasicControl.EdgeClass;
+import geo.gdal.application.IrregularNetBasicControl.FaceClass;
+import geo.gdal.application.IrregularReachBasicControl;
 import testFolder.SOBEK_OBJECT.SobekBankLine;
 
 public class HyDEM_ReLinedBankLine {
 	public static int dataDecimal = 4;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws UnsupportedEncodingException {
 		// TODO Auto-generated method stub
 		// @ input
 		// -HyDEM_SplitBankLinePolygon(String , spatailFile path)
@@ -32,7 +33,8 @@ public class HyDEM_ReLinedBankLine {
 		// @Output
 		// -HyDEM_BankLine (String , spatailFile path)
 
-		Map<String, String> parameter = WorkSpace.settingVariables(args);
+//		Map<String, String> parameter = WorkSpace.settingVariables(args);
+		Map<String, String> parameter = WorkSpace.settingVariables();
 
 		String splitHydemPolygons = parameter.get("-HyDEM_SplitBankLinePolygon");
 		String bankLineHydem = parameter.get("-HyDEM_BankLine");
@@ -365,7 +367,7 @@ public class HyDEM_ReLinedBankLine {
 
 			// detect end
 			this.endFaceKey = nextFace.getFaceKey();
-			this.mainBankLine.add(GdalGlobal.mergePolygons(temptGeoList));
+			this.mainBankLine.add(GdalGlobal.GeometriesMerge(temptGeoList));
 			this.lastDirection = directionEdge;
 			try {
 				this.leftEdgeFaceKeyMap.remove(directionEdge.getKey());
@@ -378,7 +380,7 @@ public class HyDEM_ReLinedBankLine {
 		}
 
 		public Geometry getMainBankLine() {
-			return GdalGlobal.mergePolygons(this.mainBankLine);
+			return GdalGlobal.GeometriesMerge(this.mainBankLine);
 		}
 
 		public List<Geometry> getMainBankLineList() {
@@ -415,8 +417,8 @@ public class HyDEM_ReLinedBankLine {
 		List<Geometry> outGeo = new ArrayList<>();
 
 		// start from edge1
-		geo.gdal.IrregularNetBasicControl.NodeClass node1 = edge1.getLinkedNode().get(0);
-		geo.gdal.IrregularNetBasicControl.NodeClass node2 = edge1.getLinkedNode().get(1);
+		IrregularNetBasicControl.NodeClass node1 = edge1.getLinkedNode().get(0);
+		IrregularNetBasicControl.NodeClass node2 = edge1.getLinkedNode().get(1);
 
 		// node1
 		EdgeClass startEdge1 = edge1;
@@ -445,7 +447,7 @@ public class HyDEM_ReLinedBankLine {
 		}
 
 		// outGeo
-		Geometry mergedPolygon = GdalGlobal.mergePolygons(outGeo);
+		Geometry mergedPolygon = GdalGlobal.GeometriesMerge(outGeo);
 		return mergedPolygon;
 	}
 
