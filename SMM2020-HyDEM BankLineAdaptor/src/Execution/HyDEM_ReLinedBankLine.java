@@ -10,9 +10,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.gdal.ogr.Geometry;
 
+import Execution.SOBEK_OBJECT.SobekBankLine;
 import geo.gdal.GdalGlobal;
 import geo.gdal.SpatialReader;
 import geo.gdal.SpatialWriter;
@@ -20,7 +22,6 @@ import geo.gdal.application.IrregularNetBasicControl;
 import geo.gdal.application.IrregularNetBasicControl.EdgeClass;
 import geo.gdal.application.IrregularNetBasicControl.FaceClass;
 import geo.gdal.application.IrregularReachBasicControl;
-import testFolder.SOBEK_OBJECT.SobekBankLine;
 
 public class HyDEM_ReLinedBankLine {
 	public static int dataDecimal = 4;
@@ -202,13 +203,17 @@ public class HyDEM_ReLinedBankLine {
 
 		// pairs bank line
 		List<SobekBankLine> bankLines = new ArrayList<>();
+		System.out.println(outGeo.size());
 		for (int index = 0; index < outGeo.size(); index++) {
 			try {
 				IrregularReachBasicControl temptReach = new IrregularReachBasicControl(outGeo.get(index));
 				List<Geometry> singleLineString = temptReach.getReLinkedEdge();
 
 				Geometry temptGeo1 = singleLineString.get(0);
+				temptGeo1 = checkStartEndLeveling(temptGeo1);
+
 				Geometry temptGeo2 = singleLineString.get(1);
+				temptGeo2 = checkStartEndLeveling(temptGeo2);
 
 				SobekBankLine temptBankLine1 = new SobekBankLine(temptGeo1);
 				temptBankLine1.setID((index + 1) * 2);
@@ -216,7 +221,15 @@ public class HyDEM_ReLinedBankLine {
 				SobekBankLine temptBankLine2 = new SobekBankLine(temptGeo2);
 				temptBankLine2.setID((index + 1) * 2 - 1);
 
+				// check for bankLines are same direction
 				temptBankLine1.getDistance(temptBankLine2);
+				if (temptBankLine1.getLinkedDirection() == 1) {
+					// if not , make the second one reverse
+
+					temptBankLine2 = new SobekBankLine(geometryReverse(temptGeo2));
+					temptBankLine2.setID((index + 1) * 2 - 1);
+					temptBankLine1.getDistance(temptBankLine2);
+				}
 
 				bankLines.add(temptBankLine1);
 				bankLines.add(temptBankLine2);
@@ -451,4 +464,49 @@ public class HyDEM_ReLinedBankLine {
 		return mergedPolygon;
 	}
 
+	// make sure the direction, start from the hight one
+	private static Geometry checkStartEndLeveling(Geometry geo) {
+		List<Geometry> points = GdalGlobal.GeometryToPointGeos(geo);
+
+		// reverse direction if the end level is higher
+		if (points.get(0).GetZ() < points.get(points.size() - 1).GetZ()) {
+
+			return geometryReverse(points);
+		} else {
+			return geo;
+		}
+	}
+
+	private static Geometry geometryReverse(Geometry geo) {
+		List<Geometry> points = GdalGlobal.GeometryToPointGeos(geo);
+
+		Collections.reverse(points);
+		List<Double[]> temptPoints = new ArrayList<>();
+		points.forEach(point -> {
+			try {
+				temptPoints.add(new Double[] { point.GetX(), point.GetY(), point.GetZ() });
+			} catch (Exception ex) {
+				temptPoints.add(new Double[] { point.GetX(), point.GetY() });
+				new Exception("missing z-value");
+			}
+		});
+
+		return GdalGlobal.CreateLineString(temptPoints);
+	}
+
+	private static Geometry geometryReverse(List<Geometry> points) {
+
+		Collections.reverse(points);
+		List<Double[]> temptPoints = new ArrayList<>();
+		points.forEach(point -> {
+			try {
+				temptPoints.add(new Double[] { point.GetX(), point.GetY(), point.GetZ() });
+			} catch (Exception ex) {
+				temptPoints.add(new Double[] { point.GetX(), point.GetY() });
+				new Exception("missing z-value");
+			}
+		});
+
+		return GdalGlobal.CreateLineString(temptPoints);
+	}
 }

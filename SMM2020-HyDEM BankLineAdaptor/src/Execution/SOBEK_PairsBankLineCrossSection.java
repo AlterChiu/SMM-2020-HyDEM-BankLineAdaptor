@@ -11,11 +11,11 @@ import java.util.Set;
 
 import org.gdal.ogr.Geometry;
 
+import Execution.SOBEK_OBJECT.SobekBankLine;
+import Execution.SOBEK_OBJECT.SobekBankPoint;
 import geo.gdal.SpatialReader;
 import geo.gdal.SpatialWriter;
 import geo.gdal.application.IrregularReachBasicControl;
-import testFolder.SOBEK_OBJECT.SobekBankLine;
-import testFolder.SOBEK_OBJECT.SobekBankPoint;
 import usualTool.AtCommonMath;
 
 public class SOBEK_PairsBankLineCrossSection {

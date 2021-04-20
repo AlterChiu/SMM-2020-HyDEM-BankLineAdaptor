@@ -8,9 +8,9 @@ import java.util.Map;
 
 import org.gdal.ogr.Geometry;
 
+import Execution.SOBEK_OBJECT.SobekBankLine;
 import geo.gdal.SpatialWriter;
 import geo.gdal.application.IrregularReachBasicControl;
-import testFolder.SOBEK_OBJECT.SobekBankLine;
 
 public class SOBEK_PairsBankLine {
 
